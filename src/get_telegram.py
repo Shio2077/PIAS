@@ -1,5 +1,6 @@
 from http import client
 from pickle import TRUE
+from pydoc import cli
 from re import DEBUG
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
@@ -41,10 +42,24 @@ async def main():
         else:
             proxy = (socks.HTTP, proxy_cfg["hostname"], proxy_cfg["port"])
         client = TelegramClient('anon', api_id, api_hash, proxy=proxy)
+        print("Client will start with proxy")
     else:
         client = TelegramClient('anon', api_id, api_hash)
-
-    #me = await client.get_me()
+        print("Client will not start with proxy!")
+    
+    phone_number = config.get("phone_number")
+    if not phone_number:
+        raise ValueError("phone_number not found in config")
+    
+    await client.connect()
+    if not await client.is_user_authorized():
+        print("Client is not authorized")
+        await client.send_code_request(phone_number)
+        code = input('Enter the code: ')
+        await client.sign_in(phone_number, code)
+    
+    await client.send_message('me', 'Hello from telethon!')
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
