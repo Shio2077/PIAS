@@ -2,6 +2,7 @@ from http import client
 from pickle import TRUE
 from pydoc import cli
 from re import DEBUG
+import select
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 import os
@@ -59,7 +60,31 @@ async def main():
         await client.sign_in(phone_number, code)
     
     await client.send_message('me', 'Hello from telethon!')
+
+    print("Fetching your dialogs...")
+    dialogs = await client.get_dialogs()
+
+    for d in dialogs:
+        print(f"Title: {d.name} | ID: {d.id} | entity: {d.entity.__class__.__name__}")
+
+    select_chat = None
+    entity_id = input("Enter chat or channel ID:")
     
+    # Convert to integer for comparison
+    try:
+        entity_id = int(entity_id)
+    except ValueError:
+        raise ValueError(f"Invalid ID format: {entity_id}. Please enter a valid integer ID.")
+
+    for d in dialogs:
+        if d.id == entity_id:
+            select_chat = d.entity
+            break 
+
+    if select_chat is None:
+        raise ValueError(f"Chat with ID {entity_id} not found in your dialogs. Please check the ID or use @username")
+    
+    print(f"Found chat: {select_chat.title} ID = {select_chat.id}")
 
 if __name__ == "__main__":
     asyncio.run(main())
