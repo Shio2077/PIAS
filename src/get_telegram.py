@@ -85,6 +85,35 @@ async def main():
         raise ValueError(f"Chat with ID {entity_id} not found in your dialogs. Please check the ID or use @username")
     
     print(f"Found chat: {select_chat.title} ID = {select_chat.id}")
+    
+    print("\nFetching last 100 messages...")
+    messages = await client.get_messages(select_chat, limit=100)  # type: ignore
+    
+    print(f"\n{'='*80}")
+    print(f"Last 100 messages from: {select_chat.title}")
+    print(f"{'='*80}\n")
+    
+    # Reverse to show from oldest to newest
+    for msg in reversed(messages):  # type: ignore
+        sender_name = "Unknown"
+        if msg.sender_id:
+            try:
+                sender = await client.get_entity(msg.sender_id)
+                # Handle different entity types
+                if hasattr(sender, 'first_name'):  # User
+                    sender_name = sender.first_name  # type: ignore
+                elif hasattr(sender, 'title'):  # Chat or Channel
+                    sender_name = sender.title  # type: ignore
+            except:
+                sender_name = f"ID: {msg.sender_id}"
+        
+        timestamp = msg.date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
+        text = msg.text if msg.text else "[Media or empty message]"
+        
+        print(f"[{timestamp}] {sender_name}: {text}")
+    
+    print(f"\n{'='*80}")
+    print(f"Total messages fetched: {len(messages)}")  # type: ignore
 
 if __name__ == "__main__":
     asyncio.run(main())
