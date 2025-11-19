@@ -10,6 +10,9 @@ import socks
 import json
 import asyncio
 
+# Import the chat content fetching functions
+from get_tele_chat_cont import select_and_fetch_chat
+
 debug = TRUE
 
 def load_config():
@@ -64,56 +67,8 @@ async def main():
     print("Fetching your dialogs...")
     dialogs = await client.get_dialogs()
 
-    for d in dialogs:
-        print(f"Title: {d.name} | ID: {d.id} | entity: {d.entity.__class__.__name__}")
-
-    select_chat = None
-    entity_id = input("Enter chat or channel ID:")
-    
-    # Convert to integer for comparison
-    try:
-        entity_id = int(entity_id)
-    except ValueError:
-        raise ValueError(f"Invalid ID format: {entity_id}. Please enter a valid integer ID.")
-
-    for d in dialogs:
-        if d.id == entity_id:
-            select_chat = d.entity
-            break 
-
-    if select_chat is None:
-        raise ValueError(f"Chat with ID {entity_id} not found in your dialogs. Please check the ID or use @username")
-    
-    print(f"Found chat: {select_chat.title} ID = {select_chat.id}")
-    
-    print("\nFetching last 100 messages...")
-    messages = await client.get_messages(select_chat, limit=100)  # type: ignore
-    
-    print(f"\n{'='*80}")
-    print(f"Last 100 messages from: {select_chat.title}")
-    print(f"{'='*80}\n")
-    
-    # Reverse to show from oldest to newest
-    for msg in reversed(messages):  # type: ignore
-        sender_name = "Unknown"
-        if msg.sender_id:
-            try:
-                sender = await client.get_entity(msg.sender_id)
-                # Handle different entity types
-                if hasattr(sender, 'first_name'):  # User
-                    sender_name = sender.first_name  # type: ignore
-                elif hasattr(sender, 'title'):  # Chat or Channel
-                    sender_name = sender.title  # type: ignore
-            except:
-                sender_name = f"ID: {msg.sender_id}"
-        
-        timestamp = msg.date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
-        text = msg.text if msg.text else "[Media or empty message]"
-        
-        print(f"[{timestamp}] {sender_name}: {text}")
-    
-    print(f"\n{'='*80}")
-    print(f"Total messages fetched: {len(messages)}")  # type: ignore
+    # Use the imported function to select chat and fetch messages
+    messages = await select_and_fetch_chat(client, dialogs, limit=100)
 
 if __name__ == "__main__":
     asyncio.run(main())
