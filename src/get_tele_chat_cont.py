@@ -82,25 +82,31 @@ async def select_and_fetch_chat(
         print(f"Title: {d.name} | ID: {d.id} | entity: {d.entity.__class__.__name__}")
     
     # Get user input for chat selection
-    select_chat = None
-    entity_id = input("\nEnter chat or channel ID: ")
+    select_chat = []
+    e_cnt = 0
+    entity_id = []
+    while True:
+        entity_id[e_cnt] = input("\nEnter chat or channel ID:")
+        if (entity_id[e_cnt] == "\n"):
+            break
+        else:
+            e_cnt = e_cnt + 1
     
     # Convert to integer for comparison
     try:
-        entity_id = int(entity_id)
+        entity_id = [int(eid) for eid in entity_id]
     except ValueError:
-        raise ValueError(f"Invalid ID format: {entity_id}. Please enter a valid integer ID.")
+        raise ValueError(f"Invalid ID format, please enter a valid integer ID.")
     
-    # Find the selected chat
-    for d in dialogs:
-        if d.id == entity_id:
-            select_chat = d.entity
-            break 
+    for i in range(len(entity_id)):
+        for j in range(len(dialogs)):
+            if dialogs[j].id == entity_id[i]:
+                select_chat.append(dialogs[j].entity)
+                print(f"Found chat: {select_chat[-1].title}")
     
-    if select_chat is None:
+    
+    if len(select_chat) == 0:
         raise ValueError(f"Chat with ID {entity_id} not found in your dialogs. Please check the ID or use @username")
-    
-    print(f"\nFound chat: {select_chat.title} ID = {select_chat.id}")
     
     # Fetch and display messages
     messages = await fetch_chat_messages(client, select_chat, limit=limit)
