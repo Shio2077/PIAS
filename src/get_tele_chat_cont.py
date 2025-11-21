@@ -2,57 +2,51 @@
 Module for fetching Telegram chat contents.
 """
 
+from email import message
 from telethon import TelegramClient
-from typing import Any, List
+from typing import Any, List, Tuple, Union, Sequence
+from telethon.tl.types import User, Chat, Channel
 
 
 async def fetch_chat_messages(
     client: TelegramClient,
-    chat_entity: Any,
+    chat_entitys: List[Any],
     limit: int = 100
 ) -> List[Any]:
-    """
-    Fetch messages from a chat/channel and print them to console.
     
-    Args:
-        client: Telethon TelegramClient instance (must be connected and authorized)
-        chat_entity: The chat/channel entity to fetch messages from
-        limit: Number of messages to fetch (default: 100)
-    
-    Returns:
-        List of messages fetched
-    
-    Example:
-        messages = await fetch_chat_messages(client, chat_entity, limit=100)
-    """
     print(f"\nFetching last {limit} messages...")
-    messages = await client.get_messages(chat_entity, limit=limit)  # type: ignore
-    
-    print(f"\n{'='*80}")
-    print(f"Last {limit} messages from: {chat_entity.title}")
-    print(f"{'='*80}\n")
-    
-    # Reverse to show from oldest to newest
-    for msg in reversed(messages):  # type: ignore
-        sender_name = "Unknown"
-        if msg.sender_id:
-            try:
-                sender = await client.get_entity(msg.sender_id)
-                # Handle different entity types
-                if hasattr(sender, 'first_name'):  # User
-                    sender_name = sender.first_name  # type: ignore
-                elif hasattr(sender, 'title'):  # Chat or Channel
-                    sender_name = sender.title  # type: ignore
-            except:
-                sender_name = f"ID: {msg.sender_id}"
+    msg_idx = 0
+    messages = []
+    msg_cluster = []
+    for single_chat in chat_entitys:
+        messages = await client.get_messages(single_chat, limit=limit) 
+        msg_cluster.append(messages)
+
+        print(f"\n{'='*80}")
+        print(f"Newest messages from: {single_chat.name} ") #type: ignore
+        print(f"{'='*80}\n")
         
-        timestamp = msg.date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
-        text = msg.text if msg.text else "[Media or empty message]"
+        # Reverse to show from oldest to newest
+        for msg in reversed(messages):  # type: ignore
+            sender_name = "Unknown"
+            if msg.sender_id:
+                try:
+                    sender = await client.get_entity(msg.sender_id)
+                    # Handle different entity types
+                    if hasattr(sender, 'first_name'):  # User
+                        sender_name = sender.first_name  # type: ignore
+                    elif hasattr(sender, 'title'):  # Chat or Channel
+                        sender_name = sender.title  # type: ignore
+                except:
+                    sender_name = f"ID: {msg.sender_id}"
+            
+            timestamp = msg.date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
+            text = msg.text if msg.text else "[Media or empty message]"
+            
+            print(f"[{timestamp}] {sender_name}: {text}")
         
-        print(f"[{timestamp}] {sender_name}: {text}")
-    
-    print(f"\n{'='*80}")
-    print(f"Total messages fetched: {len(messages)}")  # type: ignore
+        print(f"\n{'='*80}")
+        print(f"Total messages fetched: {len(messages)}")  # type: ignore
     
     return messages
 
