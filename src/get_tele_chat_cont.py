@@ -3,10 +3,12 @@ Module for fetching Telegram chat contents.
 """
 
 from email import message
+from math import sin
+from turtle import title
 from telethon import TelegramClient
 from typing import Any, List, Tuple, Union, Sequence
-from telethon.tl.types import User, Chat, Channel
-
+from telethon.helpers import TotalList
+from telethon.tl.custom.message import Message
 
 async def fetch_chat_messages(
     client: TelegramClient,
@@ -20,35 +22,37 @@ async def fetch_chat_messages(
     msg_cluster = []
     for single_chat in chat_entitys:
         messages = await client.get_messages(single_chat, limit=limit) 
+        assert isinstance(messages, TotalList)
+        if not messages:
+            print(f"No messages found in {single_chat.name}")
+            continue
         msg_cluster.append(messages)
 
         print(f"\n{'='*80}")
-        print(f"Newest messages from: {single_chat.name} ") #type: ignore
-        print(f"{'='*80}\n")
-        
-        # Reverse to show from oldest to newest
-        for msg in reversed(messages):  # type: ignore
-            sender_name = "Unknown"
-            if msg.sender_id:
-                try:
-                    sender = await client.get_entity(msg.sender_id)
-                    # Handle different entity types
-                    if hasattr(sender, 'first_name'):  # User
-                        sender_name = sender.first_name  # type: ignore
-                    elif hasattr(sender, 'title'):  # Chat or Channel
-                        sender_name = sender.title  # type: ignore
-                except:
-                    sender_name = f"ID: {msg.sender_id}"
+        try:
+            print(f"Chat {getattr(single_chat, 'title', None) or getattr(single_chat, 'name', 'Unknown')}")
+            print(f"{messages[-1].text}") # type: ignore
+        except ValueError:
+            print("!!!Message sequence is empty!!!")
+        print(f"\n{'='*80}")
+        sender = await client.get_entity(messages[-1].sender_id)
+        try:
+            if hasattr(sender, 'first_name'):
+                sender_name = sender.first_name
+            elif hasattr(sender, 'title'):
+                sender_name = sender.title
+        except:
+            sender_name = f"ID:{message[-1].sender_id}"     
+
+            #timestamp = messages[-1].date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
+            #text = messages[-1].text if msg.text else "[Media or empty message]"
             
-            timestamp = msg.date.strftime("%Y-%m-%d %H:%M:%S") if msg.date else "Unknown time"
-            text = msg.text if msg.text else "[Media or empty message]"
-            
-            print(f"[{timestamp}] {sender_name}: {text}")
+            #print(f"[{timestamp}] {sender_name}: {text}")
         
         print(f"\n{'='*80}")
         print(f"Total messages fetched: {len(messages)}")  # type: ignore
     
-    return messages
+    return msg_cluster
 
 
 async def select_and_fetch_chat(
@@ -78,17 +82,16 @@ async def select_and_fetch_chat(
     # Get user input for chat selection
     select_chat = []
     e_cnt = 0
-    entity_id = []
+    entity_ids = []
     while True:
-        entity_id[e_cnt] = input("\nEnter chat or channel ID:")
-        if (entity_id[e_cnt] == "\n"):
+        s = input("\nEnter chat or channel ID:")
+        if (s == ""):
             break
-        else:
-            e_cnt = e_cnt + 1
-    
+        entity_ids.append(s)
+    print("\nInput end, got ID list:", entity_ids)
     # Convert to integer for comparison
     try:
-        entity_id = [int(eid) for eid in entity_id]
+        entity_id = [int(eid) for eid in entity_ids]
     except ValueError:
         raise ValueError(f"Invalid ID format, please enter a valid integer ID.")
     
