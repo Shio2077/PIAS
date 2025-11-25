@@ -68,7 +68,7 @@ async def main():
     dialogs = await client.get_dialogs()
 
     # Use the imported function to select chat and fetch messages
-    messages = await select_and_fetch_chat(client, dialogs, limit=100)
+    messages = await select_and_fetch_chat(client, dialogs, limit=1000)
 
 if __name__ == "__main__":
     asyncio.run(main())
