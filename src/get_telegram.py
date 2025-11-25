@@ -11,7 +11,7 @@ import json
 import asyncio
 
 # Import the chat content fetching functions
-from get_tele_chat_cont import select_and_fetch_chat
+from fetch_tele_chat_cont import select_and_fetch_chat
 
 debug = TRUE
 
