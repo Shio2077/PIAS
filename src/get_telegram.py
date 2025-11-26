@@ -9,6 +9,7 @@ import os
 import socks
 import json
 import asyncio
+import time
 
 # Import the chat content fetching functions
 from fetch_tele_chat_cont import select_and_fetch_chat
@@ -68,7 +69,11 @@ async def main():
     dialogs = await client.get_dialogs()
 
     # Use the imported function to select chat and fetch messages
-    messages = await select_and_fetch_chat(client, dialogs, limit=1000)
+    messages = await select_and_fetch_chat(client, dialogs, limit=200)
+
+    print(f"{'='*80}")
+
+    time.sleep(1)
 
 if __name__ == "__main__":
     asyncio.run(main())

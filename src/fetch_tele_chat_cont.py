@@ -2,14 +2,9 @@
 Module for fetching Telegram chat contents.
 """
 
-from email import message
-from fileinput import filename
-from math import sin
-from turtle import title
 from telethon import TelegramClient
 from typing import Any, List, Tuple, Union, Sequence
 from telethon.helpers import TotalList
-from telethon.tl.custom.message import Message
 import json
 import os
 
@@ -87,10 +82,11 @@ async def fetch_chat_messages(
         print(f"\n{'='*80}")
         try:
             print(f"Chat name \"{getattr(single_chat, 'title', None) or getattr(single_chat, 'name', 'Unknown')}\"")
+            print(f"Message send time: {messages[0].date}")
             print(f"Newest message: \n{messages[0].text}") # type: ignore
-            sender = await client.get_entity(messages[0].sender_id)
-            if hasattr(sender, 'first_name'):
-                print(f"\033[34mMessage sender: {sender.first_name}\033[0m") #type: ignore
+            #sender = await client.get_entity(messages[0].sender_id)
+            #if hasattr(sender, 'first_name'):
+            #    print(f"\033[34mMessage sender: {sender.first_name}\033[0m") #type: ignore
         except ValueError:
             print("!!!Messages sequence is empty!!!")
         
