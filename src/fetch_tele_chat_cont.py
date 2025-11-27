@@ -67,7 +67,12 @@ async def fetch_chat_messages(
     chat_entitys: List[Any],
     limit: int = 100
 ):
-    
+    """
+    Retrieving chat from the Telegram client
+    Printing a portion of the chat content
+    List msg_cluster stores all chat entities
+    chat_names stores all chat names, in the same order as entities within msg_cluster
+    """
     print(f"\nFetching last {limit} messages...")
     messages = []
     msg_cluster = []
@@ -87,9 +92,6 @@ async def fetch_chat_messages(
             print(f"Chat name \"{single_chat_name}\"")
             print(f"Message send time: {messages[0].date}")
             print(f"Newest message: \n{messages[0].text}") # type: ignore
-            #sender = await client.get_entity(messages[0].sender_id)
-            #if hasattr(sender, 'first_name'):
-            #    print(f"\033[34mMessage sender: {sender.first_name}\033[0m") #type: ignore
         except ValueError:
             print("!!!Messages sequence is empty!!!")
         
@@ -122,12 +124,11 @@ async def select_and_fetch_chat(
                 select_chat.append(dialogs[j].entity)
                 print(f"Found chat: {select_chat[-1].title}")
     
-    
     if len(select_chat) == 0:
         raise ValueError(f"Chat with ID {entity_ids} not found in your dialogs. Please check the ID or use @username")
     
     # Fetch and display messages
     messages, chat_names = await fetch_chat_messages(client, select_chat, limit=limit)
     
-    
+
     return messages, chat_names

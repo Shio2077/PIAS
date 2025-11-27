@@ -7,17 +7,17 @@ def sel_chat_cont(
         chat_names: List[Any]
 ):
     """
-    过滤1分钟以外的消息文本
-    将1分钟以内的文本拼接，达成以下文本效果：
-    具体结构：
-        聊天名1
-        <发送者（如果有的话）>:文本1
-        <发送者（如果有的话）>:文本2
-        ...
-        聊天名2
-        <发送者（如果有的话）>:文本1
-        <发送者（如果有的话）>:文本2
-        ...
+    Filter message text older than 1 minute.
+    Concatenate text from messages within 1 minute to achieve the following text effect:
+    Specific structure:
+    Chat name 1
+    <Sender (if any)>: Text 1
+    <Sender (if any)>: Text 2
+    ...
+    Chat name 2
+    <Sender (if any)>: Text 1
+    <Sender (if any)>: Text 2
+    ...
     """
     msg_text = ""
     chat_idx = 0
