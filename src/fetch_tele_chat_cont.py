@@ -66,11 +66,12 @@ async def fetch_chat_messages(
     client: TelegramClient,
     chat_entitys: List[Any],
     limit: int = 100
-) -> List[Any]:
+):
     
     print(f"\nFetching last {limit} messages...")
     messages = []
     msg_cluster = []
+    chat_names = []
     for single_chat in chat_entitys:
         messages = await client.get_messages(single_chat, limit=limit) 
         assert isinstance(messages, TotalList)
@@ -81,7 +82,9 @@ async def fetch_chat_messages(
 
         print(f"\n{'='*80}")
         try:
-            print(f"Chat name \"{getattr(single_chat, 'title', None) or getattr(single_chat, 'name', 'Unknown')}\"")
+            single_chat_name = getattr(single_chat, 'title', None) or getattr(single_chat, 'name', 'Unknown')
+            chat_names.append(single_chat_name)
+            print(f"Chat name \"{single_chat_name}\"")
             print(f"Message send time: {messages[0].date}")
             print(f"Newest message: \n{messages[0].text}") # type: ignore
             #sender = await client.get_entity(messages[0].sender_id)
@@ -93,7 +96,7 @@ async def fetch_chat_messages(
         print(f"{'='*80}")
         print(f"Total messages fetched: {len(messages)}")  # type: ignore
     
-    return msg_cluster
+    return msg_cluster, chat_names
 
 
 async def select_and_fetch_chat(
@@ -101,8 +104,8 @@ async def select_and_fetch_chat(
     dialogs: List[Any],
     limit: int = 100,
     path = "~/.config/tele_chat_ids.json"
-) -> List[Any]:
-    
+):
+
     # Display all dialogs
     for d in dialogs:
         print(f"Title: {d.name} | ID: {d.id} | entity: {d.entity.__class__.__name__}")
@@ -124,6 +127,7 @@ async def select_and_fetch_chat(
         raise ValueError(f"Chat with ID {entity_ids} not found in your dialogs. Please check the ID or use @username")
     
     # Fetch and display messages
-    messages = await fetch_chat_messages(client, select_chat, limit=limit)
+    messages, chat_names = await fetch_chat_messages(client, select_chat, limit=limit)
     
-    return messages
+    
+    return messages, chat_names

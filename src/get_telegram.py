@@ -13,6 +13,7 @@ import time
 
 # Import the chat content fetching functions
 from fetch_tele_chat_cont import select_and_fetch_chat
+from comb_tele_text import sel_chat_cont
 
 debug = TRUE
 
@@ -69,7 +70,8 @@ async def main():
     dialogs = await client.get_dialogs()
 
     # Use the imported function to select chat and fetch messages
-    messages = await select_and_fetch_chat(client, dialogs, limit=200)
+    messages, chat_names = await select_and_fetch_chat(client, dialogs, limit=120)
+    sel_chat_cont(messages, chat_names)
 
     print(f"{'='*80}")
 
