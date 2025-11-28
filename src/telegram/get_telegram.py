@@ -12,8 +12,8 @@ import asyncio
 import time
 
 # Import the chat content fetching functions
-from fetch_tele_chat_cont import select_and_fetch_chat
-from comb_tele_text import sel_chat_cont
+from .fetch_tele_chat_cont import select_and_fetch_chat
+from .comb_tele_text import sel_chat_cont
 
 debug = TRUE
 
@@ -24,7 +24,7 @@ def load_config():
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
     
-async def main():
+async def get_messages() -> str:
     config = load_config()
     api_id = config["api_id"]
     api_hash = config["api_hash"]
@@ -71,11 +71,10 @@ async def main():
 
     # Use the imported function to select chat and fetch messages
     messages, chat_names = await select_and_fetch_chat(client, dialogs, limit=120)
-    sel_chat_cont(messages, chat_names)
-
+    tele_msg = sel_chat_cont(messages, chat_names)
     print(f"{'='*80}")
 
-    time.sleep(1)
+    return tele_msg
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(get_messages())

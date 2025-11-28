@@ -6,7 +6,7 @@ import pytz
 def sel_chat_cont(
         msg_cluster: List[List],
         chat_names: List[Any]
-):
+) -> str:
     """
     Filter message text older than 1 minute.
     Concatenate text from messages within 1 minute to achieve the following text effect:
@@ -46,6 +46,8 @@ def sel_chat_cont(
     else:
         msg_text = "Message time::" + modifyed_time.isoformat() + "\n" + msg_text
     print(msg_text)
+
+    return msg_text
 
 def utc_modify(dt: datetime, tz: tzinfo) -> datetime:
     return dt.astimezone(tz)
