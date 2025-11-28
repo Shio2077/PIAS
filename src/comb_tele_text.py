@@ -1,6 +1,7 @@
 from math import sin
 from typing import List, Any
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, tzinfo
+import pytz
 
 def sel_chat_cont(
         msg_cluster: List[List],
@@ -22,6 +23,9 @@ def sel_chat_cont(
     msg_text = ""
     chat_idx = 0
     now = datetime.now(timezone.utc)
+    modifyed_tz = pytz.timezone('Asia/Hong_Kong')
+    modifyed_time = utc_modify(now, modifyed_tz)
+
     for single_chat in msg_cluster:
         msg_text_temp = ""
         for single_msg in single_chat:
@@ -34,8 +38,14 @@ def sel_chat_cont(
                 else:
                     msg_text_temp = msg_text_temp + "\nChannel message:" +single_msg.raw_text
         if (msg_text_temp != ""):
-            #there is no new message in the chat
-            msg_text += "\n\nGroup or channel:<" + chat_names[chat_idx] + ">" + msg_text_temp
+            msg_text += "\n\nChat name:<" + chat_names[chat_idx] + ">" + msg_text_temp
         chat_idx += 1
+
+    if (msg_text == ""):
+        msg_text += "There was no further news or messages during that period."
+    else:
+        msg_text = "Message time::" + modifyed_time.isoformat() + "\n" + msg_text
     print(msg_text)
 
+def utc_modify(dt: datetime, tz: tzinfo) -> datetime:
+    return dt.astimezone(tz)

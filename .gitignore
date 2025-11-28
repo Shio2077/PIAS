@@ -5,6 +5,7 @@ __pycache__/
 
 # Python session files
 *.session
+*.session-journal
 
 # VS Code workspace settings and folder
 .vscode/
